@@ -133,6 +133,7 @@
       var input2 = document.getElementById('input2');
       var pwd = document.getElementById("pwd");
       var rm = document.getElementById("rmnum");
+	rm.value='general'
       var item = document.createElement('li');
       $("#saved-info-button").click(function(){try{input2.value=localStorage.getItem("saved-name");pwd.value=localStorage.getItem("saved-pwd")}catch(e){alert('You have not saved login info yet.')}})
       $("#save-info-button").click(function(){localStorage.setItem("saved-name",input2.value);localStorage.setItem("saved-pwd",pwd.value);alert('Your login info has been saved.')})
