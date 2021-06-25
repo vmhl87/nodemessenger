@@ -2,7 +2,7 @@ const choosePort=false
 const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
-const port = (choosePort?parseInt(prompt('What port?')):3000)
+const port = (choosePort?parseInt(prompt('What port?')):process.env.PORT)
 const qlog = (a) => {console.log(a);io.emit('block',-1,a)}
 var a = 0
 var sockets = []
