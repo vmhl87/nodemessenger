@@ -255,7 +255,7 @@ sio.on('run',function(u,n){
           }else if(input.value.startsWith('.msgRoom ')){
             if(banishid==''&&!input.value.startsWith('.msgRoom BROADCAST')){
          sio.emit('chat message',input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''),input2.value,pwd.value,'to '+input.value.split(' ')[1]);
-         $("#messages").append($('<li>').html(format('To room '+input.value.split(' ')[1]+': '+input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ','')))))
+         $("#messages").append($('<li>').html(format('To room '+input.value.split(' ')[1]+': '+input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''))))
            window.scrollTo(0, document.body.scrollHeight);
             }
             input.value = '';
