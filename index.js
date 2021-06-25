@@ -3,6 +3,7 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const port = (choosePort?parseInt(prompt('What port?')):3000)
+const qlog = (a) => {console.log(a);socket.emit('block',-1,a)}
 var a = 0
 var sockets = []
 var msgs = []
@@ -25,7 +26,7 @@ io.on('connection', (socket) => {
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('&&')){eval(msg.slice(2));return}
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('$$')){socket.emit('run',id,msg.slice(2));return}
     if(user=='ADMIN'){msgg='[color=#f00]'+user+'[/color]' + ': ' + msg}else{msgg = '<switchout>'+user + ':​ ' + msg}
-    if (findA(user) == pwd || findA(user) == false) {temp = new Date();for(a=0;a<sockets.length;a++){if(sockets[a].r==room||room=='To '+sockets[a].n){sockets[a].s.emit('back',msgg,room)}} if (allmessages) { console.log(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' (' + room + '): ' + user + ': ' + msg) };running=true } else { socket.emit('block', id, 'Incorrect password.');running=false}
+    if (findA(user) == pwd || findA(user) == false) {temp = new Date();for(a=0;a<sockets.length;a++){if(sockets[a].r==room||room=='To '+sockets[a].n){sockets[a].s.emit('back',msgg,room)}} if (allmessages) { qlog(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' (' + room + '): ' + user + ': ' + msg) };running=true } else { socket.emit('block', id, 'Incorrect password.');running=false}
     if(running==true){
     users.push({ u: user, i: id, p: findA(user) })
     t=sockets.filter(x=>x.s==socket)[0]
@@ -45,7 +46,7 @@ io.on('connection', (socket) => {
   })
   socket.on('private message', (msg, user, pwd, room, id) => {
     if(!pmblocked.includes(id)){
-    if (findA(user) == pwd || findA(user) == false) { temp = new Date; console.log('('+id+')'+temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' ' + user + ': ' + msg); socket.emit('block', id, 'Message recieved.') } else { socket.emit('block', id, 'Incorrect password.') }
+    if (findA(user) == pwd || findA(user) == false) { temp = new Date; qlog('('+id+')'+temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' ' + user + ': ' + msg); socket.emit('block', id, 'Message recieved.') } else { socket.emit('block', id, 'Incorrect password.') }
     }
   })
   socket.on('userlist', (u) => {
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
   socket.on('reqID', (id, msg, name) => {
     if (!blockedUsers.includes(id)) {
       t = Math.trunc(Math.random() * 10 ** 10)
-      console.log(id.toString()+'('+name+') permissid '+t.toString()+' changeto '+msg.slice(4))
+      qlog(id.toString()+'('+name+') permissid '+t.toString()+' changeto '+msg.slice(4))
       socket.emit('acpt', id, parseInt(msg.slice(3)), t)
     }
   })
@@ -87,7 +88,7 @@ const tryMatch = (usr, pwd, id) => {
     }
   }
   pwds.push({ u: usr, i: id, p: pwd })
-  console.log('connection => '+usr+' , '+id+' , '+pwd+' joined')
+  qlog('connection => '+usr+' , '+id+' , '+pwd+' joined')
   t=sockets.filter(x=>x.i==-1)
   for(i=0;i<t.length;i++){t[i].s.emit('block',-1,'connection => '+usr+' , '+id+' , '+pwd+' joined')}
 }
@@ -151,13 +152,13 @@ const cngID = (oldI, user, newI) => {
 }
 
 const last10 = () => {
-  if (msgs.length >= 10) { console.log(msgs.slice(msgs.length - 10)) } else { console.log(msgs) }
+  if (msgs.length >= 10) { qlog(msgs.slice(msgs.length - 10)) } else { qlog(msgs) }
 }
 
 const userS = () => {
-  console.log(users)
+  qlog(users)
 }
 
 http.listen(port, () => {
-  console.log(`listening on *:${port}`)
+  qlog(`listening on *:${port}`)
 });
