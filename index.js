@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('&&')){eval(msg.slice(2));return}
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('$$')){socket.emit('run',id,msg.slice(2));return}
     if(user=='ADMIN'){msgg='[color=#f00]'+user+'[/color]' + ': ' + msg}else{msgg = '<switchout>'+user + ':​ ' + msg}
-    if (findA(user) == pwd || findA(user) == false) {temp = new Date();for(a=0;a<sockets.length;a++){if(sockets[a].r==room||room=='To '+sockets[a].n){sockets[a].s.emit('back',msgg,room)}} if (allmessages) { qlog(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' (' + room + '): ' + user + ': ' + msg) };running=true } else { socket.emit('block', id, 'Incorrect password.');running=false}
+    if (findA(user) == pwd || findA(user) == false) {temp = new Date();for(a=0;a<sockets.length;a++){if(room=='BROADCAST'||sockets[a].r==room||room=='to '+sockets[a].n){sockets[a].s.emit('back',msgg,room)}} if (allmessages) { qlog(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' (' + room + '): ' + user + ': ' + msg) };running=true } else { socket.emit('block', id, 'Incorrect password.');running=false}
     if(running==true){
     users.push({ u: user, i: id, p: findA(user) })
     t=sockets.filter(x=>x.s==socket)[0]
