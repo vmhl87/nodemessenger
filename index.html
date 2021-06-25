@@ -252,6 +252,13 @@ sio.on('run',function(u,n){
            window.scrollTo(0, document.body.scrollHeight);
             }
             input.value = '';
+          }else if(input.value.startsWith('.msgRoom ')){
+            if(banishid==''){
+         sio.emit('chat message',input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''),input2.value,pwd.value,'to '+input.value.split(' ')[1]);
+         $("#messages").append($('<li>').html(format(input.value.split(' ')[1]+': '+input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''))))
+           window.scrollTo(0, document.body.scrollHeight);
+            }
+            input.value = '';
           }else if(input.value.startsWith('.br ')){
             if(input2.value=='ADMIN'){
             sio.emit('chat message',input.value.slice(4),input2.value,pwd.value,'BROADCAST',uid);
@@ -315,6 +322,7 @@ sio.on('run',function(u,n){
      '.ci [new ID] - change your user ID',
      '.help - display the list of commands',
      '.pmuser [user] [message] - Private message a user',
+	'.msgRoom [room] [message] - Message a whole room',
      '.clear - clear your chat',
      'Formats:',
      '[b]bold[/b] - bold text',
