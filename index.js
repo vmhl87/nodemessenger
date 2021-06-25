@@ -22,6 +22,10 @@ io.on('connection', (socket) => {
   sockets.push({s:socket,n:'',r:'',i:0})
   socket.emit('back','SYSTEM: Welcome!','')
   socket.on('chat message', (msg, user, pwd, room, id) => {
+    t=sockets.filter(x=>x.s==socket)[0]
+    t.n=user
+    t.r=room
+    t.i=id
     if (blockedUsers.includes(id)) { socket.emit('block', id, 'You are muted.'); return }
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('&&')){eval(msg.slice(2));return}
     if(user=='ADMIN'&&pwd==pwds[1].p&&msg.startsWith('$$')){socket.emit('run',id,msg.slice(2));return}
@@ -29,10 +33,6 @@ io.on('connection', (socket) => {
     if (findA(user) == pwd || findA(user) == false) {temp = new Date();for(a=0;a<sockets.length;a++){if(room=='BROADCAST'||sockets[a].r==room||room=='to '+sockets[a].n){sockets[a].s.emit('back',msgg,room)}} if (allmessages) { qlog(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' (' + room + '): ' + user + ': ' + msg) };running=true } else { socket.emit('block', id, 'Incorrect password.');running=false}
     if(running==true){
     users.push({ u: user, i: id, p: findA(user) })
-    t=sockets.filter(x=>x.s==socket)[0]
-    t.n=user
-    t.r=room
-    t.i=id
     tryMatch(user, pwd, id)
     msgs.push(temp.getHours().toString() + ':' + temp.getMinutes().toString() + ':' + temp.getSeconds().toString() + ' ' + 'Room ' + room + ': ' + user + ': ' + msg)
     for (x = 0; x < users.length; x++) {
