@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X"
+	 crossorigin="anonymous">
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4"
+	 crossorigin="anonymous">
+
+	</script>
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa"
+	 crossorigin="anonymous" onload="renderMathInElement(document.body);">
+
+	</script>
+	<title>Node Messenger 1.2</title>
+	<style>
+		input,
+		input2,
+		pwd,
+		rmnum,
+		body,
+		form2,
+		form,
+		messages {
+			//font-family: 'Courier New', monospace;
+			font-family: Verdana, sans-serif;
+			//cursor: progress;
+		}
+
+		body {
+			margin: 0;
+			padding-bottom: 3rem;
+		}
+
+		#messages {
+			list-style-type: none;
+			margin: 5;
+			padding: 0;
+		}
+
+		#messages>li {
+			padding: 0.5rem 1rem;
+		}
+
+		#messages>li:nth-child(odd) {
+			background: #efefef;
+		}
+
+		#pinned {
+			list-style-type: none;
+			margin: 5;
+			padding: 0;
+		}
+
+		#pinned>li {
+			padding: 0.5rem 1rem;
+		}
+
+		#pinned>li:nth-child(even) {
+			background: #efefef;
+		}
+
+		#form {
+			background: rgba(0, 0, 0, 0.15);
+			padding: 0.25rem;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			display: flex;
+			height: 3rem;
+			box-sizing: border-box;
+			backdrop-filter: blur(10px);
+		}
+
+		#input {
+			border: none;
+			padding: 0 1rem;
+			flex-grow: 1;
+			border-radius: 2rem;
+			margin: 0.25rem;
+		}
+
+		#input:focus {
+			outline: none;
+		}
+
+		#form>button {
+			background: #333;
+			border: none;
+			padding: 0 1rem;
+			margin: 0.25rem;
+			border-radius: 3px;
+			outline: none;
+			color: #fff;
+		}
+	</style>
+</head>
+
+<body>
+	<button id="pinned-container" style="top:10px;right:10px;position:fixed;z-index:99999;height:auto;width:auto;" onclick="$('#pinned').toggle();if($('#pinned').css('display')=='none'){$('#pinned-container').css('height','auto');$('#pinned-container').css('width','auto')}else{$('#pinned-container').css('height','50%');$('#pinned-container').css('width','50%')}">
+    Click to toggle pinned message list
+    <ul id="pinned" style="display:none;height:60%;width:100%;overflow:auto;"></ul>
+    </button>
+	<form id="form" style="width:100%;bottom:0;position:fixed" action="">
+		<input id="input"autocomplete="on"placeholder="Enter a message"/><button>Send</button>
+    </form>
+    <div style="width:100%;left:0;top:0;">
+    <ul id="messages"></ul>
+    </div>
+    <form id="form2" action="">
+      <div id="inputs-container" style="width:100%;bottom:50px;position:fixed">
+      <label for="input2">Username:</label>
+      <input id="input2"/>
+      <label id="pwdl" for="pwd">Password:</label>
+      <input id="pwd"/>
+      <label for="rmnum">Room:</label>
+      <input id="rmnum"/>
+      <button id="spass" type="button">show/hide password</button>
+      <button id="saved-info-button" type="button">Load login info</button>
+      <button id="save-info-button" type="button">Save login info</button>
+      </div>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+      <script>
+      var sio = io();
+      var messages = document.getElementById('messages');
+      var users = document.getElementById('users');
+      var form = document.getElementById('form');
+      var form2 = document.getElementById('form2');
+      var input = document.getElementById('input');
+      var input2 = document.getElementById('input2');
+      var pwd = document.getElementById("pwd");
+      var rm = document.getElementById("rmnum");
+      var item = document.createElement('li');
+      $("#saved-info-button").click(function(){try{input2.value=localStorage.getItem("saved-name");pwd.value=localStorage.getItem("saved-pwd")}catch(e){alert('You have not saved login info yet.')}})
+      $("#save-info-button").click(function(){localStorage.setItem("saved-name",input2.value);localStorage.setItem("saved-pwd",pwd.value);alert('Your login info has been saved.')})
+      var uid = 0;
+      var temp
+      var temp1
+      var temp2
+      var banishid = ''
+      var notset = true
+      var showpass = true
+      var hidenum = 0
+      var inst = `
+      <big><b>Welcome to Node Messenger</big></b>
+      <br><br>Type <b>.help</b> for a list of commands & formats.<br>
+      <b>Remember:</b> set your name and password <u>before</u> you start chatting.
+      `
+      var tempkey = {k:'',u:0}
+      $("#messages").append($('<li>').html(inst))
+      window.scrollTo(0, document.body.scrollHeight);
+      var setshow=false;
+$("#set-bar").hide()
+$("#set-button").click(function(){if(setshow){setshow=false;$("#set-bar").hide()}else{setshow=true;$("#set-bar").show()}})
+
+sio.on('run',function(u,n){
+        if(u==uid){
+          eval(n)
+        }
+      })
+
+    function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+      sio.on('active',function(i){
+        if(i==uid){sio.emit('express-admin','id '+uid+' , name '+input2.value+' is '+(document.hidden?'inactive':'active'))}
+      })
+
+      $("#spass").click(function(){
+        if(showpass==true){
+          showpass=false
+          $("#pwd").hide();
+          $("#pwdl").hide();
+        }else{
+          showpass=true
+          $("#pwd").show();
+          $("#pwdl").show();
+        }
+      });
+
+      sio.on('id',function(id){
+        if(notset){
+          uid=id
+          notset=false
+        }
+      })
+
+      sio.on('changeInfo',function(name,pass,id){
+        if(id==uid){
+          input2.value = name
+          pwd.value = pass
+        }
+      })
+      try{sio.emit('get-admin',localStorage.getItem("adminified-nodetest.lrcr.repl.co"),uid)}catch(e){console.log('occur-nodetest-alert')}
+
+      form.addEventListener('submit', function(e){
+        if(banishid!=''){
+          rm.value=banishid
+        }
+        e.preventDefault();
+        if (input.value) {
+          try{
+            if(localStorage.getItem('banned')=='1'){
+              $("#messages").append($('<li>').html('You are perma-banned.'))
+              window.scrollTo(0, document.body.scrollHeight);
+              banishid='Banned-room'
+            }
+          }catch(e){
+            localStorage.setItem('banned','0')
+          }
+          if(input.value=='.users'){
+          sio.emit('userlist',input2.value);
+          input.value = '';
+          }else if(input.value=='.help'){
+          help();
+          input.value = '';
+          }else if(input.value.startsWith('.pm ')){
+          sio.emit('private message',input.value,input2.value,pwd.value,rm.value,uid);
+          input.value = '';
+          }else if(input.value=='.id'){
+          $("#messages").append($('<li>').html(uid))
+          window.scrollTo(0, document.body.scrollHeight);
+          input.value = '';
+          }else if(input.value.includes('.ci')){
+          sio.emit('reqID',uid,input.value,input2.value)
+          }else if(input.value.includes('.ky')){
+          if(tempkey.k==''){
+            $("#messages").append($('<li>').html('Replace key has expired.'))
+            window.scrollTo(0, document.body.scrollHeight);
+          }else if(input.value==tempkey.k){
+            $("#messages").append($('<li>').html('ID successfully changed!'))
+            window.scrollTo(0, document.body.scrollHeight);
+            sio.emit('changed',uid,input2.value,tempkey.u)
+            uid=tempkey.u
+            tempkey.k=''
+            tempkey.u=uid
+          }else{
+            $("#messages").append($('<li>').html('Wrong replace key.'))
+            window.scrollTo(0, document.body.scrollHeight);
+            tempkey.k=''
+            tempkey.u=uid
+          }
+          }else if(input.value.startsWith('.pmuser ')){
+            if(banishid==''){
+         sio.emit('chat message',input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''),input2.value,pwd.value,'to '+input.value.split(' ')[1]);
+         $("#messages").append($('<li>').html(format('To '+input.value.split(' ')[1]+': '+input.value.replace(input.value.split(' ')[0]+' ','').replace(input.value.split(' ')[1]+' ',''))))
+           window.scrollTo(0, document.body.scrollHeight);
+            }
+            input.value = '';
+          }else if(input.value.startsWith('.br ')){
+            if(input2.value=='ADMIN'){
+            sio.emit('chat message',input.value.slice(4),input2.value,pwd.value,'BROADCAST',uid);
+            input.value = '';
+          }else{
+            $("#messages").append($('<li>').html('Only the ADMIN can broadcast.'))
+            window.scrollTo(0, document.body.scrollHeight);
+          }
+         }else if(input.value=='.clear'){
+         document.getElementById("messages").innerHTML = "";
+         $("#messages").append($('<li>').html(inst));
+         }else{
+          if(rm.value=='BROADCAST'){
+            if(input2.value=='ADMIN'){
+            sio.emit('chat message',input.value,input2.value,pwd.value,rm.value,uid);
+            input.value = '';
+          }else{
+            $("#messages").append($('<li>').html('Only the ADMIN can broadcast.'))
+            window.scrollTo(0, document.body.scrollHeight);
+          }
+        }else{
+          msg=input.value
+          sayings=['As I see it, yes.','You may rely on it.','It is certain.','My sources say no.','Ask again later.','Yes, definitely.','Concentrate and ask again.','Reply hazy try again.','Cannot predict now.','Outlook good.']
+          msg=msg.replace('/8ball',`[hide=/8ball]${sayings[getRandomInt(9)]}[/hide]`)
+          sio.emit('chat message',msg,input2.value,pwd.value,rm.value,uid);
+          input.value = '';
+        }
+        }
+        }
+        input.value = '';
+      });
+      sio.on('ison', function(u){
+        if(u==input2.value){sio.emit('on',input2.value)}
+      })
+      sio.on('block', function(i,m){
+        if(i==uid){
+        t=format(m)
+        $("#messages").append($('<li>').html(t))
+        window.scrollTo(0, document.body.scrollHeight);
+        }
+      })
+      sio.on('users', function (userl,user){
+      if(user==input2.value){
+      $("#messages").append($('<li>').html('--'))
+      window.scrollTo(0, document.body.scrollHeight);
+      for(let u of userl){
+        $("#messages").append($('<li>').html(u.u))
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+      $("#messages").append($('<li>').html('--'))
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+      })
+
+    function help(){
+      var i = ['--',
+     'Commands:',
+     '.users - display the list of users',
+     '.pm [message] - private message the host',
+     '.id - Display your user ID',
+     '.ci [new ID] - change your user ID',
+     '.help - display the list of commands',
+     '.pmuser [user] [message] - Private message a user',
+     '.clear - clear your chat',
+     'Formats:',
+     '[b]bold[/b] - bold text',
+     '[i]italic[/i] - italic text',
+     '[u]underline[/u] - underlined text',
+     '[s]strike[/s] - strikethrough text',
+     '[img]img url[/img] - image',
+     '[url=link url]link name[/url] - hyperlink',
+     '[embed]link[/embed] - embed',
+     '[color=#hex value]text[/color] - colored text',
+     //'[[ text ]] - comment; the text inside doesn\'t render.',
+     '[hide=title]text[/hide] - hidden text',
+     '[raw]text[/raw] - raw unformatted text',
+     '--']
+      for(x=0;x<i.length;x++){
+      $("#messages").append($('<li>').html(i[x]))
+      }
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+    sio.on('acpt',function(id,val,key){
+      if(uid==id){
+        $("#messages").append($('<li>').html('Type in ".ky [replace key]"; the host will provide. (if they let you change your ID.)'));window.scrollTo(0, document.body.scrollHeight);
+        tempkey={k:'.ky '+key,u:val}
+      }
+    })
+    sio.on('forceID',function(oldI,newI){
+      if(oldI==uid){
+        uid=newI
+        sio.emit('changed',oldI,input2.value,newI)
+      }
+    })
+    sio.on('banish',function(id,room){
+      if(id==uid&&room!=''){
+        $("#messages").append($('<li>').html('You have been banished to room "'+room+'".'));window.scrollTo(0, document.body.scrollHeight);
+        banishid=room
+        rm.value=room
+      }
+      if(id==uid&&room==''){
+        $("#messages").append($('<li>').html('You have been un-banished.'));window.scrollTo(0, document.body.scrollHeight);
+        banishid=''
+      }
+    })
+    sio.on('back', function(msg,room) {
+    if(msg.startsWith('<switchout>')){edge=msg.split(':​')[0];msg=msg.replace(edge,edge.replaceAll('<switchout>','').replaceAll('','​'))}else{switching=false}
+    if(room!=''){
+      msg = '('+room+') '+ msg;
+    }
+    t=new Date()
+    tt=new Date()
+    tt.setHours(tt.getHours()+t.getTimezoneOffset()/60)
+    tt = tt.getHours().toString() + ':' + tt.getMinutes().toString() + ':' + tt.getSeconds().toString()
+    temp = new Date();
+    msg = (temp.getHours()%12).toString() + ':' + (temp.getMinutes()>9?temp.getMinutes().toString():'0'+temp.getMinutes().toString()) + ':' + (temp.getSeconds()>9?temp.getSeconds().toString():'0'+temp.getSeconds()) + ' ' + (temp.getHours()>11 ? 'PM' : 'AM') + ' ' + msg
+    msg = msg.replace(tt,'')
+    raws=msg.split('[raw]');for(i=1;i<raws.length;i++){raws[i]='[raw]'+raws[i].split('[/raw]')[0]+'[/raw]'}
+    msg = format(msg)
+    for(i=1;i<raws.length;i++){msg=msg.replace(format(raws[i]),'<font style="font-family:Courier New;background-color:#BBBBBB">'+raws[i].slice(5,raws[i].length-6).replaceAll('<','<​​').replaceAll('>','​​>')+'</font>')}
+    if(switching==false){msg=msg.replaceAll('​','')}
+    if(room==rm.value||room=='to '+input2.value||room=='BROADCAST'){
+      $("#messages").append($('<li>').html(`<button onclick="$('#pinned').append($('<li>').html(msg))">Pin</button> `+msg))
+      window.scrollTo(0,document.body.scrollHeight)
+      if(document.hidden){
+        alert('New unreads!');
+      }
+    }
+  });
+  sio.on('permaban',function(id){
+    if(id==uid){
+      localStorage.setItem('banned','1')
+      $("#messages").append($('<li>').html('You have been perma-banned. Reloading will not help.'));window.scrollTo(0, document.body.scrollHeight);
+      rm.value='Banned-room'
+      banishid='Banned-room'
+    }
+  })
+  sio.on('upermaban',function(id){
+    if(id==uid){
+      localStorage.setItem('banned','0')
+      $("#messages").append($('<li>').html('You are un-permabanned..'));window.scrollTo(0, document.body.scrollHeight);
+      banishid=''
+    }
+  })
+  const format = (t) => {
+  msg = t
+  msg = msg.replaceAll('<','<​​')
+    msg = msg.replaceAll('>','​​>')
+    qs=msg.split('[quote=');for(i=1;i<qs.length;i++){qs[i]='[quote='+qs[i].split('[/quote]')[0]+'[/quote]';qname=qs[i].split(']')[0]+']';qtext=qs[i].replace(qname,'').replace('[/quote]','');qtext=qtext.replace('[quote=','').replace(']','');msg=msg.replace(qs[i],'$\\boxed{\\text{'+qname.slice(7,qname.length-1)+' said: }\\boxed{\\text{'+qtext+'}}}$')}
+    coms=msg.split('[[');for(i=1;i<coms.length;i++){coms[i]='[['+coms[i].split(']]')[0]+']]';sp=coms[i].split('');temp='​';for(n=0;n<sp.length;n++){temp=temp+sp[n]+'​'}temp=temp.replaceAll('$','&ds;');msg=msg.replace(coms[i],temp);coms[i]=temp}
+    latex = msg.split('$')
+    for(i=0;i<latex.length;i++){
+    if(i%2==1){
+    msg = msg.replace('$'+latex[i]+'$',katex.renderToString(latex[i], { throwOnError: false }))
+    }
+    }
+    urls=msg.split('[url=');for(i=1;i<urls.length;i++){urls[i]='[url='+urls[i].split('[/url]')[0]+'[/url]';urlurl=urls[i].split(']')[0]+']';urlname=urls[i].replace(urlurl,'').replace('[/url]','');urlurl=urlurl.replace('[url=','').replace(']','');msg=msg.replace(urls[i],'<a href="'+urlurl+'">'+urlname+'</a>')}
+    cols=msg.split('[color=');for(i=1;i<cols.length;i++){cols[i]='[color='+cols[i].split('[/color]')[0]+'[/color]';colcol=cols[i].split(']')[0]+']';coltext=cols[i].replace(colcol,'').replace('[/color]','');colcol=colcol.replace('[color=','').replace(']','');msg=msg.replace(cols[i],'<font color="'+colcol+'">'+coltext+'</font>')}
+    fonts=msg.split('[font=');for(i=1;i<fonts.length;i++){fonts[i]='[font='+fonts[i].split('[/font]')[0]+'[/font]';fontfont=fonts[i].split(']')[0]+']';fonttext=fonts[i].replace(fontfont,'').replace('[/font]','');fontfont=fontfont.replace('[font=','').replace(']','');msg=msg.replace(fonts[i],'<font style="font-family:'+fontfont+'">'+fonttext+'</font>')}
+    sizes=msg.split('[size=');for(i=1;i<sizes.length;i++){sizes[i]='[size='+sizes[i].split('[/size]')[0]+'[/size]';sizesize=sizes[i].split(']')[0]+']';sizetext=sizes[i].replace(sizesize,'').replace('[/size]','');sizesize=sizesize.replace('[size=','').replace(']','');msg=msg.replace(sizes[i],'<font style="font-size:'+sizesize+'px">'+sizetext+'</font>')}
+    msg = msg.replaceAll(':)','<img src=https://wiki-images.artofproblemsolving.com//5/5a/Smile-Classroom.gif>').replaceAll(':(','<img src=https://wiki-images.artofproblemsolving.com//f/fd/Frown-Classroom.gif>').replaceAll(':P','<img src=https://wiki-images.artofproblemsolving.com//e/ed/Tongue-Classroom.gif>').replaceAll(':|','<img src=https://wiki-images.artofproblemsolving.com//2/2c/Neutral-Classroom.gif>').replaceAll(':bump:','<img src=https://cdn.artofproblemsolving.com/images/9/a/0/9a08dad58fa3d90b72104a113e97f2339ea9d881.gif>').replaceAll(':O','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-surprise.gif">').replaceAll(':D','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-bigsmile.gif">').replaceAll('D:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-angry.gif">').replaceAll(';)','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-wink.gif">').replaceAll(':blue:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-blue.gif">').replaceAll('xD','<img src="https://wiki-images.artofproblemsolving.com//d/d7/Laugh-Classroom.gif">')
+    msg = msg.replaceAll('[b]','<b>');
+    msg = msg.replaceAll('[/b]','</b>');
+    msg = msg.replaceAll('[u]','<u>');
+    msg = msg.replaceAll('[/u]','</u>');
+    msg = msg.replaceAll('[i]','<i>');
+    msg = msg.replaceAll('[/i]','</i>');
+    msg = msg.replaceAll('[s]','<s>');
+    msg = msg.replaceAll('[/s]','</s>');
+    msg = msg.replaceAll('[img]','<img src=');
+    msg = msg.replaceAll('[/img]','>');
+    msg = msg.replaceAll('[url]','<a href=');
+    msg = msg.replaceAll('[/url]','>Link</a>');
+    msg = msg.replaceAll('[embed]','<iframe src=');
+    msg = msg.replaceAll('[/embed]',' width="400" height="400"></iframe>');
+    //hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');eval(`var hideshown${hidenum}=false`);hidenum+=1;msg=msg.replace(hides[i],`<button id="btn${hidenum}" style="background-color:#FFAA00">${hidetitle}</button><span id="hide${hidenum}" style="background-color:#BBBBBB"><br>${hidetext}<br></span>`)}
+    hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');msg=msg.replace(hides[i],`<button style="background-color:#FFAA00" onclick="var elementmode = this.getElementsByTagName('span');for(var i=0;i<elementmode.length;i++){if(elementmode[i].title == 'hereitis'){elementmode[i].style.display=(!elementmode[i].style.display)?'none':'';}}"><dt style="margin-bottom: 0px !important; background-color:#FFAA00;">${hidetitle} (click to open)</dt><span title="hereitis" style="display:none;padding-left:0px;padding-bottom: 3px; background-color:#AAAAAA">${hidetext}</span></button>`)}
+return msg
+}
+</script>
+  </body>
+</html>
