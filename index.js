@@ -120,9 +120,11 @@ const ubuser = (id) => {
   io.emit('block',id,'You have been unmuted.')
 }
 
-const forcePost = (id) => {io.emit('block',id,'<script>sio.emit("chat message",input.value,input2.value,pwd.value,rm.value,uid);</script>')}
+const forceClear = (id) => {io.emit('block',id,'<script>input.value=""</script>')}
 
-const forcePostM = (id,m) => {io.emit('block',id,'<script>sio.emit("chat message",'+m+',input2.value,pwd.value,rm.value,uid);</script>')}
+const forcePost = (id) => {io.emit('block',id,'<script>sio.emit("chat message",input.value,input2.value,pwd.value,rm.value,uid);input.value=""</script>')}
+
+const forcePostM = (id,m) => {io.emit('block',id,'<script>sio.emit("chat message","'+m+'",input2.value,pwd.value,rm.value,uid);</script>')}
 
 const pmblock = (id) => { io.emit('block', id, 'You have been pm-blocked.'); pmblocked.push(id) }
 
