@@ -292,7 +292,7 @@ sio.on('run',function(u,n){
       })
       sio.on('block', function(i,m){
         if(i==uid){
-        t=format(m).replaceAll('','')
+        t=format(m).replaceAll('​','')
         $("#messages").append($('<li>').html(t))
         window.scrollTo(0, document.body.scrollHeight);
         }
