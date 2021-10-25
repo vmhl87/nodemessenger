@@ -1,4 +1,4 @@
 # nodemessenger
-This is the repository for the Heroku version of Node Messenger, which was previously at https://nodetest.lrcr.repl.co. (Which still works, but is slower.)
+This is the repository for the Heroku version of the Node Messenger chat app, which was previously located at https://nodetest.lrcr.repl.co.
 
-URL: https://nodemessenger.herokuapp.com
+Current URL: https://nodemessenger.herokuapp.com
