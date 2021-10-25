@@ -363,6 +363,7 @@ sio.on('run',function(u,n){
       }
     })
     sio.on('back', function(msg,room) {
+    let switching=true
     if(msg.startsWith('<switchout>')){edge=msg.split(':​')[0];msg=msg.replace(edge,edge.replaceAll('<switchout>','').replaceAll('','​'))}else{switching=false}
     if(room!=''){
       msg = '('+room+') '+ msg;
