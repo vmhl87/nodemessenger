@@ -403,8 +403,8 @@ sio.on('run',function(u,n){
   })
   const format = (t) => {
   msg = t
-  msg = msg.replaceAll('<','<​​')
-    msg = msg.replaceAll('>','​​>')
+  msg = msg.replaceAll('<','<​')
+    msg = msg.replaceAll('>','​>')
     qs=msg.split('[quote=');for(i=1;i<qs.length;i++){qs[i]='[quote='+qs[i].split('[/quote]')[0]+'[/quote]';qname=qs[i].split(']')[0]+']';qtext=qs[i].replace(qname,'').replace('[/quote]','');qtext=qtext.replace('[quote=','').replace(']','');msg=msg.replace(qs[i],'$\\boxed{\\text{'+qname.slice(7,qname.length-1)+' said: }\\boxed{\\text{'+qtext+'}}}$')}
     coms=msg.split('[[');for(i=1;i<coms.length;i++){coms[i]='[['+coms[i].split(']]')[0]+']]';sp=coms[i].split('');temp='​';for(n=0;n<sp.length;n++){temp=temp+sp[n]+'​'}temp=temp.replaceAll('$','&ds;');msg=msg.replace(coms[i],temp);coms[i]=temp}
     latex = msg.split('$')
