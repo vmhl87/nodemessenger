@@ -279,7 +279,7 @@ sio.on('run',function(u,n){
         }else{
           msg=input.value
           sayings=['As I see it, yes.','You may rely on it.','It is certain.','My sources say no.','Ask again later.','Yes, definitely.','Concentrate and ask again.','Reply hazy try again.','Cannot predict now.','Outlook good.']
-          msg=msg.replaceAll('/8ball',`[hide=/8ball]${sayings[getRandomInt(9)]}[/hide]`)
+          msg=msg.replace('/8ball',`[hide=/8ball]${sayings[getRandomInt(9)]}[/hide]`)
           sio.emit('chat message',msg,input2.value,pwd.value,rm.value,uid);
           input.value = '';
         }
