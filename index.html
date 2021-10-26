@@ -143,10 +143,11 @@
       var notset = true
       var showpass = true
       var hidenum = 0
-      var inst = `
+      var inst = format(`
       <big><b>Welcome to Node Messenger</big></b>
-      <br><br>Type <b>.help</b> for the help desk<br>
-      `
+      <br><br>Type <b>.help</b> for the command list<br>
+      [hide=New user?]Input the username you choose and your chosen password. If no other users have used that name, the app will add your new account to their account list. In the future if you login, use this username and password. You can also save your login info and password and then load it later.[/hide]<br>
+      `).replaceAll('​','')
       var tempkey = {k:'',u:0}
       $("#messages").append($('<li>').html(inst))
       window.scrollTo(0, document.body.scrollHeight);
