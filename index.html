@@ -122,6 +122,41 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
       <script>
+    const format = (t) => {
+    msg = t
+    msg = msg.replaceAll('<','<​')
+    msg = msg.replaceAll('>','​>')
+    qs=msg.split('[quote=');for(i=1;i<qs.length;i++){qs[i]='[quote='+qs[i].split('[/quote]')[0]+'[/quote]';qname=qs[i].split(']')[0]+']';qtext=qs[i].replace(qname,'').replace('[/quote]','');qtext=qtext.replace('[quote=','').replace(']','');msg=msg.replace(qs[i],'$\\boxed{\\text{'+qname.slice(7,qname.length-1)+' said: }\\boxed{\\text{'+qtext+'}}}$')}
+    coms=msg.split('[[');for(i=1;i<coms.length;i++){coms[i]='[['+coms[i].split(']]')[0]+']]';sp=coms[i].split('');temp='​';for(n=0;n<sp.length;n++){temp=temp+sp[n]+'​'}temp=temp.replaceAll('$','&ds;');msg=msg.replace(coms[i],temp);coms[i]=temp}
+    latex = msg.split('$')
+    for(i=0;i<latex.length;i++){
+    if(i%2==1){
+    msg = msg.replace('$'+latex[i]+'$',katex.renderToString(latex[i], { throwOnError: false }))
+    }
+    }
+    urls=msg.split('[url=');for(i=1;i<urls.length;i++){urls[i]='[url='+urls[i].split('[/url]')[0]+'[/url]';urlurl=urls[i].split(']')[0]+']';urlname=urls[i].replace(urlurl,'').replace('[/url]','');urlurl=urlurl.replace('[url=','').replace(']','');msg=msg.replace(urls[i],'<a href="'+urlurl+'">'+urlname+'</a>')}
+    cols=msg.split('[color=');for(i=1;i<cols.length;i++){cols[i]='[color='+cols[i].split('[/color]')[0]+'[/color]';colcol=cols[i].split(']')[0]+']';coltext=cols[i].replace(colcol,'').replace('[/color]','');colcol=colcol.replace('[color=','').replace(']','');msg=msg.replace(cols[i],'<font color="'+colcol+'">'+coltext+'</font>')}
+    fonts=msg.split('[font=');for(i=1;i<fonts.length;i++){fonts[i]='[font='+fonts[i].split('[/font]')[0]+'[/font]';fontfont=fonts[i].split(']')[0]+']';fonttext=fonts[i].replace(fontfont,'').replace('[/font]','');fontfont=fontfont.replace('[font=','').replace(']','');msg=msg.replace(fonts[i],'<font style="font-family:'+fontfont+'">'+fonttext+'</font>')}
+    sizes=msg.split('[size=');for(i=1;i<sizes.length;i++){sizes[i]='[size='+sizes[i].split('[/size]')[0]+'[/size]';sizesize=sizes[i].split(']')[0]+']';sizetext=sizes[i].replace(sizesize,'').replace('[/size]','');sizesize=sizesize.replace('[size=','').replace(']','');msg=msg.replace(sizes[i],'<font style="font-size:'+sizesize+'px">'+sizetext+'</font>')}
+    msg = msg.replaceAll(':)','<img src=https://wiki-images.artofproblemsolving.com//5/5a/Smile-Classroom.gif>').replaceAll(':(','<img src=https://wiki-images.artofproblemsolving.com//f/fd/Frown-Classroom.gif>').replaceAll(':P','<img src=https://wiki-images.artofproblemsolving.com//e/ed/Tongue-Classroom.gif>').replaceAll(':|','<img src=https://wiki-images.artofproblemsolving.com//2/2c/Neutral-Classroom.gif>').replaceAll(':bump:','<img src=https://cdn.artofproblemsolving.com/images/9/a/0/9a08dad58fa3d90b72104a113e97f2339ea9d881.gif>').replaceAll(':O','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-surprise.gif">').replaceAll(':D','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-bigsmile.gif">').replaceAll('D:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-angry.gif">').replaceAll(';)','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-wink.gif">').replaceAll(':blue:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-blue.gif">').replaceAll('xD','<img src="https://wiki-images.artofproblemsolving.com//d/d7/Laugh-Classroom.gif">')
+    msg = msg.replaceAll('[b]','<b>');
+    msg = msg.replaceAll('[/b]','</b>');
+    msg = msg.replaceAll('[u]','<u>');
+    msg = msg.replaceAll('[/u]','</u>');
+    msg = msg.replaceAll('[i]','<i>');
+    msg = msg.replaceAll('[/i]','</i>');
+    msg = msg.replaceAll('[s]','<s>');
+    msg = msg.replaceAll('[/s]','</s>');
+    msg = msg.replaceAll('[img]','<img src=');
+    msg = msg.replaceAll('[/img]','>');
+    msg = msg.replaceAll('[url]','<a href=');
+    msg = msg.replaceAll('[/url]','>Link</a>');
+    msg = msg.replaceAll('[embed]','<iframe src=');
+    msg = msg.replaceAll('[/embed]',' width="400" height="400"></iframe>');
+    //hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');eval(`var hideshown${hidenum}=false`);hidenum+=1;msg=msg.replace(hides[i],`<button id="btn${hidenum}" style="background-color:#FFAA00">${hidetitle}</button><span id="hide${hidenum}" style="background-color:#BBBBBB"><br>${hidetext}<br></span>`)}
+    hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');msg=msg.replace(hides[i],`<button style="background-color:#FFAA00" onclick="var elementmode = this.getElementsByTagName('span');for(var i=0;i<elementmode.length;i++){if(elementmode[i].title == '.'){elementmode[i].style.display=(!elementmode[i].style.display)?'none':'';}}"><dt style="margin-bottom: 0px !important; background-color:#FFAA00;">${hidetitle} (click to open)</dt><span title="." style="display:none;padding-left:0px;padding-bottom: 3px; background-color:#AAAAAA">${hidetext}</span></button>`)}
+    return msg
+    }
       var sio = io();
       var messages = document.getElementById('messages');
       var users = document.getElementById('users');
@@ -146,7 +181,7 @@
       var inst = format(`
       <big><b>Welcome to Node Messenger</big></b>
       <br><br>Type <b>.help</b> for the command list<br>
-      [hide=New user?]Input the username you choose and your chosen password. If no other users have used that name, the app will add your new account to their account list. In the future if you login, use this username and password. You can also save your login info and password and then load it later.[/hide]<br>
+      [hide="New user?"]Input the username you choose and your chosen password. If no other users have used that name, the app will add your new account to their account list. In the future if you login, use this username and password. You can also save your login info and password and then load it later.[/hide]<br>
       `).replaceAll('​','')
       var tempkey = {k:'',u:0}
       $("#messages").append($('<li>').html(inst))
@@ -403,41 +438,6 @@ sio.on('run',function(u,n){
       banishid=''
     }
   })
-  const format = (t) => {
-  msg = t
-  msg = msg.replaceAll('<','<​')
-    msg = msg.replaceAll('>','​>')
-    qs=msg.split('[quote=');for(i=1;i<qs.length;i++){qs[i]='[quote='+qs[i].split('[/quote]')[0]+'[/quote]';qname=qs[i].split(']')[0]+']';qtext=qs[i].replace(qname,'').replace('[/quote]','');qtext=qtext.replace('[quote=','').replace(']','');msg=msg.replace(qs[i],'$\\boxed{\\text{'+qname.slice(7,qname.length-1)+' said: }\\boxed{\\text{'+qtext+'}}}$')}
-    coms=msg.split('[[');for(i=1;i<coms.length;i++){coms[i]='[['+coms[i].split(']]')[0]+']]';sp=coms[i].split('');temp='​';for(n=0;n<sp.length;n++){temp=temp+sp[n]+'​'}temp=temp.replaceAll('$','&ds;');msg=msg.replace(coms[i],temp);coms[i]=temp}
-    latex = msg.split('$')
-    for(i=0;i<latex.length;i++){
-    if(i%2==1){
-    msg = msg.replace('$'+latex[i]+'$',katex.renderToString(latex[i], { throwOnError: false }))
-    }
-    }
-    urls=msg.split('[url=');for(i=1;i<urls.length;i++){urls[i]='[url='+urls[i].split('[/url]')[0]+'[/url]';urlurl=urls[i].split(']')[0]+']';urlname=urls[i].replace(urlurl,'').replace('[/url]','');urlurl=urlurl.replace('[url=','').replace(']','');msg=msg.replace(urls[i],'<a href="'+urlurl+'">'+urlname+'</a>')}
-    cols=msg.split('[color=');for(i=1;i<cols.length;i++){cols[i]='[color='+cols[i].split('[/color]')[0]+'[/color]';colcol=cols[i].split(']')[0]+']';coltext=cols[i].replace(colcol,'').replace('[/color]','');colcol=colcol.replace('[color=','').replace(']','');msg=msg.replace(cols[i],'<font color="'+colcol+'">'+coltext+'</font>')}
-    fonts=msg.split('[font=');for(i=1;i<fonts.length;i++){fonts[i]='[font='+fonts[i].split('[/font]')[0]+'[/font]';fontfont=fonts[i].split(']')[0]+']';fonttext=fonts[i].replace(fontfont,'').replace('[/font]','');fontfont=fontfont.replace('[font=','').replace(']','');msg=msg.replace(fonts[i],'<font style="font-family:'+fontfont+'">'+fonttext+'</font>')}
-    sizes=msg.split('[size=');for(i=1;i<sizes.length;i++){sizes[i]='[size='+sizes[i].split('[/size]')[0]+'[/size]';sizesize=sizes[i].split(']')[0]+']';sizetext=sizes[i].replace(sizesize,'').replace('[/size]','');sizesize=sizesize.replace('[size=','').replace(']','');msg=msg.replace(sizes[i],'<font style="font-size:'+sizesize+'px">'+sizetext+'</font>')}
-    msg = msg.replaceAll(':)','<img src=https://wiki-images.artofproblemsolving.com//5/5a/Smile-Classroom.gif>').replaceAll(':(','<img src=https://wiki-images.artofproblemsolving.com//f/fd/Frown-Classroom.gif>').replaceAll(':P','<img src=https://wiki-images.artofproblemsolving.com//e/ed/Tongue-Classroom.gif>').replaceAll(':|','<img src=https://wiki-images.artofproblemsolving.com//2/2c/Neutral-Classroom.gif>').replaceAll(':bump:','<img src=https://cdn.artofproblemsolving.com/images/9/a/0/9a08dad58fa3d90b72104a113e97f2339ea9d881.gif>').replaceAll(':O','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-surprise.gif">').replaceAll(':D','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-bigsmile.gif">').replaceAll('D:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-angry.gif">').replaceAll(';)','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-wink.gif">').replaceAll(':blue:','<img src="https://artofproblemsolving.com/assets/images/smilies/classroom-blue.gif">').replaceAll('xD','<img src="https://wiki-images.artofproblemsolving.com//d/d7/Laugh-Classroom.gif">')
-    msg = msg.replaceAll('[b]','<b>');
-    msg = msg.replaceAll('[/b]','</b>');
-    msg = msg.replaceAll('[u]','<u>');
-    msg = msg.replaceAll('[/u]','</u>');
-    msg = msg.replaceAll('[i]','<i>');
-    msg = msg.replaceAll('[/i]','</i>');
-    msg = msg.replaceAll('[s]','<s>');
-    msg = msg.replaceAll('[/s]','</s>');
-    msg = msg.replaceAll('[img]','<img src=');
-    msg = msg.replaceAll('[/img]','>');
-    msg = msg.replaceAll('[url]','<a href=');
-    msg = msg.replaceAll('[/url]','>Link</a>');
-    msg = msg.replaceAll('[embed]','<iframe src=');
-    msg = msg.replaceAll('[/embed]',' width="400" height="400"></iframe>');
-    //hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');eval(`var hideshown${hidenum}=false`);hidenum+=1;msg=msg.replace(hides[i],`<button id="btn${hidenum}" style="background-color:#FFAA00">${hidetitle}</button><span id="hide${hidenum}" style="background-color:#BBBBBB"><br>${hidetext}<br></span>`)}
-    hides=msg.split('[hide=');for(i=1;i<hides.length;i++){hides[i]='[hide='+hides[i].split('[/hide]')[0]+'[/hide]';hidetitle=hides[i].split(']')[0]+']';hidetext=hides[i].replace(hidetitle,'').replace('[/hide]','');hidetitle=hidetitle.replace('[hide=','').replace(']','');msg=msg.replace(hides[i],`<button style="background-color:#FFAA00" onclick="var elementmode = this.getElementsByTagName('span');for(var i=0;i<elementmode.length;i++){if(elementmode[i].title == '.'){elementmode[i].style.display=(!elementmode[i].style.display)?'none':'';}}"><dt style="margin-bottom: 0px !important; background-color:#FFAA00;">${hidetitle} (click to open)</dt><span title="." style="display:none;padding-left:0px;padding-bottom: 3px; background-color:#AAAAAA">${hidetext}</span></button>`)}
-return msg
-}
 </script>
   </body>
 </html>
