@@ -3,4 +3,4 @@ This is the repository for the Heroku version of the Node Messenger chat app, wh
 
 Current URL: https://nodemessenger.herokuapp.com
 
-Made by vmhl87(github.com/vmhl87)
+Made by vmhl87(https://github.com/vmhl87)
