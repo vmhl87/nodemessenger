@@ -13,7 +13,7 @@ var blockedUsers = []
 var pmblocked = []
 var allmessages = false
 var newid = 0
-var msgsq=-1
+var msgsq=29
 app.get('/', (x, res) => {
   res.sendFile(__dirname + '/index.html')
   if (a == 0) { a = x }
@@ -24,7 +24,7 @@ io.on('connection', (socket) => {
   socket.emit('back','SYSTEM: Welcome!','')
   socket.on('chat message', (msg, user, pwd, room, id) => {
     msgsq+=1
-    if(msgsq==0){
+    if(msgsq==30){
        msgsq=0
       io.emit('back','<span style="text-align:right"><i>This chat room was written by <a href="https://github.com/vmhl87">vmhl87</a></i></span>',room)
     }
