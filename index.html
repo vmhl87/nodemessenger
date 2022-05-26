@@ -412,8 +412,11 @@ sio.on('run',function(u,n){
     tt.setHours(tt.getHours()+t.getTimezoneOffset()/60)
     tt = tt.getHours().toString() + ':' + tt.getMinutes().toString() + ':' + tt.getSeconds().toString()
     temp = new Date();
-    msg = (temp.getHours()%12).toString() + ':' + (temp.getMinutes()>9?temp.getMinutes().toString():'0'+temp.getMinutes().toString()) + ':' + (temp.getSeconds()>9?temp.getSeconds().toString():'0'+temp.getSeconds()) + ' ' + (temp.getHours()>11 ? 'PM' : 'AM') + ' ' + msg
+    //msg = (temp.getHours()%12).toString() + ':' + (temp.getMinutes()>9?temp.getMinutes().toString():'0'+temp.getMinutes().toString()) + ':' + (temp.getSeconds()>9?temp.getSeconds().toString():'0'+temp.getSeconds()) + ' ' + (temp.getHours()>11 ? 'PM' : 'AM') + ' ' + msg
     msg = msg.replace(tt,'')
+	    r=new Date()
+	    r.toLocaleString('en-US',{timeZone:'America/New_York'}).split(' GMT')[0]
+	    msg = r + ' ' + msg
     raws=msg.split('[raw]');for(i=1;i<raws.length;i++){raws[i]='[raw]'+raws[i].split('[/raw]')[0]+'[/raw]'}
     msg = format(msg)
     for(i=1;i<raws.length;i++){msg=msg.replace(format(raws[i]),'<font style="font-family:Courier New;background-color:#BBBBBB">'+raws[i].slice(5,raws[i].length-6).replaceAll('<','<​​').replaceAll('>','​​>')+'</font>')}
