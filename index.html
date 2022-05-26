@@ -414,8 +414,8 @@ sio.on('run',function(u,n){
     temp = new Date();
     //msg = (temp.getHours()%12).toString() + ':' + (temp.getMinutes()>9?temp.getMinutes().toString():'0'+temp.getMinutes().toString()) + ':' + (temp.getSeconds()>9?temp.getSeconds().toString():'0'+temp.getSeconds()) + ' ' + (temp.getHours()>11 ? 'PM' : 'AM') + ' ' + msg
     msg = msg.replace(tt,'')
-	    r=new Date()
-	    r.toLocaleString('en-US').split(' GMT')[0]
+	    let r=new Date()
+	    r=r.toLocaleString('en-US',{timeZone:'America/New_York'}).split(', ')[1]
 	    msg = r + ' ' + msg
     raws=msg.split('[raw]');for(i=1;i<raws.length;i++){raws[i]='[raw]'+raws[i].split('[/raw]')[0]+'[/raw]'}
     msg = format(msg)
